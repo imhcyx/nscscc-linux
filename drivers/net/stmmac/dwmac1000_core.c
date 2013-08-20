@@ -209,6 +209,12 @@ static void dwmac1000_irq_status(void __iomem *ioaddr)
 		 * status register. */
 		readl(ioaddr + GMAC_PMT);
 	}
+/*fix rgmi irq*/
+	if ((intr_status & rgmii_irq)) {
+		CHIP_DBG(KERN_DEBUG "GMAC: RGMII interrupt\n");
+		readl(ioaddr + GMAC_GMII_STATUS);
+	}
+
 }
 
 static const struct stmmac_ops dwmac1000_ops = {
