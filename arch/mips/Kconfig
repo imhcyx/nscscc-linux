@@ -1063,6 +1063,14 @@ choice
 	prompt "CPU type"
 	default CPU_R4X00
 
+config CPU_LOONGSON232
+	bool "Loongson 232"
+	depends on SYS_HAS_CPU_LOONGSON232
+	select CPU_SUPPORTS_32BIT_KERNEL
+	select CPU_SUPPORTS_HIGHMEM
+	help
+	 The loongson2f southbridge soc.
+
 config CPU_LOONGSON2E
 	bool "Loongson 2E"
 	depends on SYS_HAS_CPU_LOONGSON2E
@@ -1295,6 +1303,11 @@ config CPU_CAVIUM_OCTEON
 	  Full details can be found at http://www.caviumnetworks.com.
 
 endchoice
+
+config SYS_HAS_CPU_LOONGSON232
+	bool
+	select CPU_SUPPORTS_CPUFREQ
+	select CPU_SUPPORTS_UNCACHED_ACCELERATED
 
 config CPU_LOONGSON2
 	bool

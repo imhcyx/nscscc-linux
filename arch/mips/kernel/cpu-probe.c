@@ -160,6 +160,7 @@ void __init check_wait(void)
 	case CPU_BCM6348:
 	case CPU_BCM6358:
 	case CPU_CAVIUM_OCTEON:
+	case CPU_LOONGSON232:
 		cpu_wait = r4k_wait;
 		break;
 
@@ -291,6 +292,7 @@ static inline void cpu_probe_vmbits(struct cpuinfo_mips *c)
 #endif
 }
 
+static void __cpuinit decode_configs(struct cpuinfo_mips *c);
 #define R4K_OPTS (MIPS_CPU_TLB | MIPS_CPU_4KEX | MIPS_CPU_4K_CACHE \
 		| MIPS_CPU_COUNTER)
 
@@ -588,6 +590,22 @@ static inline void cpu_probe_legacy(struct cpuinfo_mips *c, unsigned int cpu)
 			     MIPS_CPU_FPU | MIPS_CPU_LLSC |
 			     MIPS_CPU_32FPR;
 		c->tlbsize = 64;
+		break;
+	case PRID_IMP_LOONGSON1:
+		if((c->processor_id & 0x00ff) == PRID_REV_LOONGSON232)
+		{
+			decode_configs(c);
+			c->cputype = CPU_LOONGSON232;
+			__cpu_name[cpu] = "ICT Loongson-232";
+		}
+		else
+		{
+			c->cputype = CPU_LOONGSON1;
+			c->isa_level = MIPS_CPU_ISA_II;
+			c->options = R4K_OPTS | 
+				/* MIPS_CPU_FPU | */ MIPS_CPU_LLSC;
+			c->tlbsize = 32;
+		}
 		break;
 	}
 }
