@@ -20,13 +20,10 @@
   Author: Giuseppe Cavallaro <peppe.cavallaro@st.com>
 *******************************************************************************/
 
-#define DRV_MODULE_VERSION	"Oct_09"
-
-#if defined(CONFIG_VLAN_8021Q) || defined(CONFIG_VLAN_8021Q_MODULE)
-#define STMMAC_VLAN_TAG_USED
-#include <linux/if_vlan.h>
-#endif
-
+#define STMMAC_RESOURCE_NAME   "stmmaceth"
+#define DRV_MODULE_VERSION	"Feb_2012"
+#include <linux/stmmac.h>
+#include <linux/phy.h>
 #include "common.h"
 #ifdef CONFIG_STMMAC_TIMER
 #include "stmmac_timer.h"
@@ -40,7 +37,6 @@ struct stmmac_priv {
 	unsigned int cur_tx;
 	unsigned int dirty_tx;
 	unsigned int dma_tx_size;
-	int tx_coe;
 	int tx_coalesce;
 
 	struct dma_desc *dma_rx ;
@@ -51,27 +47,19 @@ struct stmmac_priv {
 	struct sk_buff_head rx_recycle;
 
 	struct net_device *dev;
-	int is_gmac;
 	dma_addr_t dma_rx_phy;
 	unsigned int dma_rx_size;
-	int rx_csum;
 	unsigned int dma_buf_sz;
 	struct device *device;
-	struct mac_device_info *mac_type;
+	struct mac_device_info *hw;
+	void __iomem *ioaddr;
 
 	struct stmmac_extra_stats xstats;
 	struct napi_struct napi;
 
-	phy_interface_t phy_interface;
-	int pbl;
-	int bus_id;
-	int phy_addr;
-	int phy_mask;
-	int (*phy_reset) (void *priv);
-	void (*fix_mac_speed) (void *priv, unsigned int speed);
-	void *bsp_priv;
+	int rx_coe;
+	int no_csum_insertion;
 
-	int phy_irq;
 	struct phy_device *phydev;
 	int oldlink;
 	int speed;
@@ -79,20 +67,36 @@ struct stmmac_priv {
 	unsigned int flow_ctrl;
 	unsigned int pause;
 	struct mii_bus *mii;
+	struct mii_bus mii_bus;
+	int mii_irq[PHY_MAX_ADDR];
 
 	u32 msg_enable;
 	spinlock_t lock;
+	spinlock_t tx_lock;
 	int wolopts;
-	int wolenabled;
-	int shutdown;
+	int wol_irq;
 #ifdef CONFIG_STMMAC_TIMER
 	struct stmmac_timer *tm;
 #endif
-#ifdef STMMAC_VLAN_TAG_USED
-	struct vlan_group *vlgrp;
-#endif
+	struct plat_stmmacenet_data *plat;
+	struct stmmac_counters mmc;
+	struct dma_features dma_cap;
+	int hw_cap_support;
 };
+
+extern int phyaddr;
 
 extern int stmmac_mdio_unregister(struct net_device *ndev);
 extern int stmmac_mdio_register(struct net_device *ndev);
 extern void stmmac_set_ethtool_ops(struct net_device *netdev);
+extern const struct stmmac_desc_ops enh_desc_ops;
+extern const struct stmmac_desc_ops ndesc_ops;
+
+int stmmac_freeze(struct net_device *ndev);
+int stmmac_restore(struct net_device *ndev);
+int stmmac_resume(struct net_device *ndev);
+int stmmac_suspend(struct net_device *ndev);
+int stmmac_dvr_remove(struct net_device *ndev);
+struct stmmac_priv *stmmac_dvr_probe(struct device *device,
+				     struct plat_stmmacenet_data *plat_dat,
+				     void __iomem *addr);

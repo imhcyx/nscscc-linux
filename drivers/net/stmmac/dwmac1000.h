@@ -20,6 +20,9 @@
   Author: Giuseppe Cavallaro <peppe.cavallaro@st.com>
 *******************************************************************************/
 
+#include <linux/phy.h>
+#include "common.h"
+
 #define GMAC_CONTROL		0x00000000	/* Configuration */
 #define GMAC_FRAME_FILTER	0x00000004	/* Frame Filter */
 #define GMAC_HASH_HIGH		0x00000008	/* Multicast Hash Table High */
@@ -32,7 +35,7 @@
 #define GMAC_WAKEUP_FILTER	0x00000028	/* Wake-up Frame Filter */
 
 #define GMAC_INT_STATUS		0x00000038	/* interrupt status register */
-enum gmac_irq_status {
+enum dwmac1000_irq_status {
 	time_stamp_irq = 0x0200,
 	mmc_rx_csum_offload_irq = 0x0080,
 	mmc_tx_irq = 0x0040,
@@ -90,13 +93,13 @@ enum inter_frame_gap {
 #define GMAC_CONTROL_IPC	0x00000400 /* Checksum Offload */
 #define GMAC_CONTROL_DR		0x00000200 /* Disable Retry */
 #define GMAC_CONTROL_LUD	0x00000100 /* Link up/down */
-#define GMAC_CONTROL_ACS	0x00000080 /* Automatic Pad Stripping */
+#define GMAC_CONTROL_ACS	0x00000080 /* Automatic Pad/FCS Stripping */
 #define GMAC_CONTROL_DC		0x00000010 /* Deferral Check */
 #define GMAC_CONTROL_TE		0x00000008 /* Transmitter Enable */
 #define GMAC_CONTROL_RE		0x00000004 /* Receiver Enable */
 
 #define GMAC_CORE_INIT (GMAC_CONTROL_JD | GMAC_CONTROL_PS | GMAC_CONTROL_ACS | \
-			GMAC_CONTROL_IPC | GMAC_CONTROL_JE | GMAC_CONTROL_BE)
+			GMAC_CONTROL_JE | GMAC_CONTROL_BE)
 
 /* GMAC Frame Filter defines */
 #define GMAC_FRAME_FILTER_PR	0x00000001	/* Promiscuous Mode */
@@ -154,14 +157,14 @@ enum rx_tx_priority_ratio {
 #define DMA_CONTROL_DT		0x04000000 /* Disable Drop TCP/IP csum error */
 #define DMA_CONTROL_RSF		0x02000000 /* Receive Store and Forward */
 #define DMA_CONTROL_DFF		0x01000000 /* Disaable flushing */
-/* Theshold for Activating the FC */
+/* Threshold for Activating the FC */
 enum rfa {
 	act_full_minus_1 = 0x00800000,
 	act_full_minus_2 = 0x00800200,
 	act_full_minus_3 = 0x00800400,
 	act_full_minus_4 = 0x00800600,
 };
-/* Theshold for Deactivating the FC */
+/* Threshold for Deactivating the FC */
 enum rfd {
 	deac_full_minus_1 = 0x00400000,
 	deac_full_minus_2 = 0x00400800,
@@ -169,7 +172,6 @@ enum rfd {
 	deac_full_minus_4 = 0x00401800,
 };
 #define DMA_CONTROL_TSF		0x00200000 /* Transmit  Store and Forward */
-#define DMA_CONTROL_FTF		0x00100000 /* Flush transmit FIFO */
 
 enum ttc_control {
 	DMA_CONTROL_TTC_64 = 0x00000000,
@@ -202,3 +204,5 @@ enum rtc_control {
 #define GMAC_MMC_RX_INTR   0x104
 #define GMAC_MMC_TX_INTR   0x108
 #define GMAC_MMC_RX_CSUM_OFFLOAD   0x208
+
+extern const struct stmmac_dma_ops dwmac1000_dma_ops;
