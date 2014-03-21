@@ -26,4 +26,16 @@ config SENSORS_TSL2550
 	  This driver can also be built as a module.  If so, the module
 	  will be called tsl2550.
 
+config PCA9539
+    tristate "pca9539 keyboard controler driver"
+	depends on I2C
+config TS_ZT2083
+    tristate "zt2083 touchscreen driver"
+	depends on I2C
+
+config GPIO
+    tristate "LOONSON LS1B GPIO driver"
+	depends on I2C
+
+
 endmenu

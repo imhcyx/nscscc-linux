@@ -9,3 +9,6 @@ obj-$(CONFIG_MACH_LOONGSON) += common/
 #
 
 obj-$(CONFIG_LEMOTE_FULOONG2E)  += fuloong-2e/
+
+obj-$(CONFIG_LOONGSON_LS1A_BOARD)  += ls1a/
+obj-$(CONFIG_LOONGSON_LS1B_BOARD)  += ls1b/

@@ -565,6 +565,10 @@ config I2C_VERSATILE
 	  This driver can also be built as a module.  If so, the module
 	  will be called i2c-versatile.
 
+config I2C_LS1X
+	tristate "loongson1a,1b I2C bus support"
+	depends on MACH_LOONGSON_LS1X
+
 comment "External I2C/SMBus adapter drivers"
 
 config I2C_PARPORT

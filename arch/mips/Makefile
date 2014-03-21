@@ -128,6 +128,10 @@ cflags-$(CONFIG_CPU_LOONGSON2E) += \
 cflags-$(CONFIG_CPU_LOONGSON232) += $(call cc-option,-march=mips32,-mips32 -U_MIPS_ISA -D_MIPS_ISA=_MIPS_ISA_MIPS32) \
 			$(call cc-option,-Wa$(comma)-mfix-gs2f-kernel,) -Wa,-mips32 -Wa,--trap
 
+
+cflags-$(CONFIG_CPU_LOONGSON232) += $(call cc-option,-march=mips32,-mips32 -U_MIPS_ISA -D_MIPS_ISA=_MIPS_ISA_MIPS32) \
+			$(call cc-option,-Wa$(comma)-mfix-gs2f-kernel,) -Wa,-mips32 -Wa,--trap
+
 cflags-$(CONFIG_CPU_MIPS32_R1)	+= $(call cc-option,-march=mips32,-mips32 -U_MIPS_ISA -D_MIPS_ISA=_MIPS_ISA_MIPS32) \
 			-Wa,-mips32 -Wa,--trap
 cflags-$(CONFIG_CPU_MIPS32_R2)	+= $(call cc-option,-march=mips32r2,-mips32r2 -U_MIPS_ISA -D_MIPS_ISA=_MIPS_ISA_MIPS32) \
@@ -327,6 +331,12 @@ core-$(CONFIG_MACH_LOONGSON) +=arch/mips/loongson/
 cflags-$(CONFIG_MACH_LOONGSON) += -I$(srctree)/arch/mips/include/asm/mach-loongson \
                     -mno-branch-likely
 load-$(CONFIG_LEMOTE_FULOONG2E) +=0xffffffff80100000
+
+
+core-$(CONFIG_MACH_LOONGSON_LS1X) +=arch/mips/loongson/
+cflags-$(CONFIG_MACH_LOONGSON_LS1X) += -I$(srctree)/arch/mips/include/asm/loongson-ls1x \
+                    -mno-branch-likely
+load-$(CONFIG_MACH_LOONGSON_LS1X) +=0xffffffff80200000
 
 #
 # MIPS Malta board

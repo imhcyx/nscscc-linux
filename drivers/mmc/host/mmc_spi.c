@@ -953,7 +953,10 @@ mmc_spi_data_do(struct mmc_spi_host *host, struct mmc_command *cmd,
 				t->len);
 
 			if (direction == DMA_TO_DEVICE)
+			{
+				timeout = 500;
 				status = mmc_spi_writeblock(host, t, timeout);
+			}
 			else
 				status = mmc_spi_readblock(host, t, timeout);
 			if (status < 0)

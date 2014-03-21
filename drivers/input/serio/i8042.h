@@ -26,6 +26,8 @@
 #include "i8042-sparcio.h"
 #elif defined(CONFIG_X86) || defined(CONFIG_IA64)
 #include "i8042-x86ia64io.h"
+#elif defined(CONFIG_MACH_LOONGSON_LS1X)
+#include "i8042-ls1xio.h"
 #else
 #include "i8042-io.h"
 #endif

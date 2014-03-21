@@ -482,4 +482,16 @@ config MTD_NAND_W90P910
 	  This enables the driver for the NAND Flash on evaluation board based
 	  on w90p910.
 
+config MTD_NAND_LS1A
+	tristate "Support for NAND on LS1A SOC"
+	depends on MTD_NAND && MACH_LS1A
+	help
+	  This enables the NAND flash controller on the LS1A SoC.
+
+config MTD_NAND_LS1B
+	tristate "Support for NAND on LS1B SOC"
+	depends on MTD_NAND && MACH_LS1B
+	help
+	  This enables the NAND flash controller on the LS1B SoC.
+
 endif # MTD_NAND

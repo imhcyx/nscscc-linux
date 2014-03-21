@@ -67,6 +67,7 @@
 #include "sja1000.h"
 
 #define DRV_NAME "sja1000"
+#define LS1F_CAN_BUG_FIX
 
 MODULE_AUTHOR("Oliver Hartkopp <oliver.hartkopp@volkswagen.de>");
 MODULE_LICENSE("Dual BSD/GPL");
@@ -152,6 +153,10 @@ static void sja1000_start(struct net_device *dev)
 	if (priv->can.state != CAN_STATE_STOPPED)
 		set_reset_mode(dev);
 
+	/* bit timming fix @zenglu */
+	priv->write_reg(priv, REG_BTR0, 0x43);
+	priv->write_reg(priv, REG_BTR1, 0x2f);
+	
 	/* Clear error counters and error code capture */
 	priv->write_reg(priv, REG_TXERR, 0x0);
 	priv->write_reg(priv, REG_RXERR, 0x0);
@@ -434,6 +439,11 @@ static int sja1000_err(struct net_device *dev, uint8_t isrc, uint8_t status)
 					 state == CAN_STATE_ERROR_PASSIVE)) {
 		uint8_t rxerr = priv->read_reg(priv, REG_RXERR);
 		uint8_t txerr = priv->read_reg(priv, REG_TXERR);
+#ifdef LS1F_CAN_BUG_FIX
+		unsigned int bugfix = *(unsigned int *)(priv->reg_base+REG_ECC);
+		rxerr = (bugfix&0xff0000)>>16;
+		txerr = (bugfix&0xff000000)>>24;
+#endif
 		cf->can_id |= CAN_ERR_CRTL;
 		if (state == CAN_STATE_ERROR_WARNING) {
 			priv->can.can_stats.error_warning++;

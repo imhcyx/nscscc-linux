@@ -200,6 +200,17 @@ config MACH_LOONGSON
 	  Chinese Academy of Sciences (CAS) in the People's Republic
 	  of China. The chief architect is Professor Weiwu Hu.
 
+config MACH_LOONGSON_LS1X
+	bool "Loongson 1X family of machines"
+	select SYS_SUPPORTS_ZBOOT_UART16550
+	select USB_ARCH_HAS_HCD
+	select USB_ARCH_HAS_OHCI
+	select USB_ARCH_HAS_EHCI
+#	select ARCH_REQUIRE_GPIOLIB
+	help
+	  This enables the support of Loongson 2f southbridge.
+
+
 config MIPS_MALTA
 	bool "MIPS Malta board"
 	select ARCH_MAY_HAVE_PC_FDC
@@ -870,6 +881,17 @@ config GENERIC_ISA_DMA_SUPPORT_BROKEN
 config GENERIC_GPIO
 	bool
 
+config MACH_LS1A
+	bool
+	select USB_ARCH_HAS_EHCI
+	select USB_ARCH_HAS_OHCI
+
+config MACH_LS1B
+	bool
+	select USB_ARCH_HAS_EHCI
+	select USB_ARCH_HAS_OHCI
+
+
 #
 # Endianess selection.  Sufficiently obscure so many users don't know what to
 # answer,so we try hard to limit the available choices.  Also the use of a
@@ -1078,6 +1100,8 @@ config CPU_LOONGSON2E
 	help
 	  The Loongson 2E processor implements the MIPS III instruction set
 	  with many extensions.
+
+
 
 config CPU_MIPS32_R1
 	bool "MIPS32 Release 1"

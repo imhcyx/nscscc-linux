@@ -12,6 +12,9 @@
 
 obj-$(CONFIG_DS1682)		+= ds1682.o
 obj-$(CONFIG_SENSORS_TSL2550)	+= tsl2550.o
+obj-$(CONFIG_PCA9539)	        += pca9539.o
+obj-$(CONFIG_TS_ZT2083)	    += ts_zt2083.o
+obj-$(CONFIG_GPIO)	            += gpio.o
 
 ifeq ($(CONFIG_I2C_DEBUG_CHIP),y)
 EXTRA_CFLAGS += -DDEBUG

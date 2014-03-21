@@ -2276,7 +2276,11 @@ serial8250_set_termios(struct uart_port *port, struct ktermios *termios,
 	baud = uart_get_baud_rate(port, termios, old,
 				  port->uartclk / 16 / 0xffff,
 				  port->uartclk / 16);
+#ifdef CONFIG_MACH_LOONGSON_LS1X
+	quot = port->uartclk / (16 * baud);
+#else
 	quot = serial8250_get_divisor(port, baud);
+#endif
 
 	/*
 	 * Oxford Semi 952 rev B workaround
@@ -2388,8 +2392,10 @@ serial8250_set_termios(struct uart_port *port, struct ktermios *termios,
 		serial_outp(up, UART_LCR, cval | UART_LCR_DLAB);/* set DLAB */
 	}
 
-	serial_dl_write(up, quot);
-
+#ifdef CONFIG_NORECONFIG_SERIAL
+	if (!up->port.line)
+#endif
+		serial_dl_write(up, quot);
 	/*
 	 * LCR DLAB must be set to enable 64-byte FIFO mode. If the FCR
 	 * is written without DLAB set, this mode will be disabled.
@@ -2406,6 +2412,10 @@ serial8250_set_termios(struct uart_port *port, struct ktermios *termios,
 		}
 		serial_outp(up, UART_FCR, fcr);		/* set fcr */
 	}
+	
+	//zk modify for serial intr disable bug
+	serial_out(up, UART_IER, up->ier);
+	
 	serial8250_set_mctrl(&up->port, up->port.mctrl);
 	spin_unlock_irqrestore(&up->port.lock, flags);
 	/* Don't rewrite B0 */

@@ -2065,6 +2065,7 @@ int uart_suspend_port(struct uart_driver *drv, struct uart_port *uport)
 	return 0;
 }
 
+
 int uart_resume_port(struct uart_driver *drv, struct uart_port *uport)
 {
 	struct uart_state *state = drv->state + uport->line;
@@ -2111,7 +2112,7 @@ int uart_resume_port(struct uart_driver *drv, struct uart_port *uport)
 	 */
 	if (uart_console(uport)) {
 		uart_change_pm(state, 0);
-		uport->ops->set_termios(uport, &termios, NULL);
+		//uport->ops->set_termios(uport, &termios, NULL);
 		console_start(uport->cons);
 	}
 

@@ -44,6 +44,10 @@ static const struct fb_videomode modedb[] = {
 	NULL, 60, 640, 480, 39721, 40, 24, 32, 11, 96, 2,
 	0, FB_VMODE_NONINTERLACED
     }, {
+	/* 720x576 @ 60 Hz, zk modify for D1*/
+	NULL, 60, 720, 576, 32670, 96, 24, 4, 1, 72, 16, 
+	0, FB_VMODE_NONINTERLACED
+	}, {
 	/* 800x600 @ 56 Hz, 35.15 kHz hsync */
 	NULL, 56, 800, 600, 27777, 128, 24, 22, 1, 72, 2,
 	0, FB_VMODE_NONINTERLACED
@@ -80,8 +84,8 @@ static const struct fb_videomode modedb[] = {
 	NULL, 72, 800, 600, 20000, 64, 56, 23, 37, 120, 6,
 	FB_SYNC_HOR_HIGH_ACT|FB_SYNC_VERT_HIGH_ACT, FB_VMODE_NONINTERLACED
     }, {
-	/* 1024x768 @ 60 Hz, 48.4 kHz hsync */
-	NULL, 60, 1024, 768, 15384, 168, 8, 29, 3, 144, 6,
+	/* 1024x768 @ 60 Hz, zk modify for pmon */
+	NULL, 60, 1024, 768, 64110, 160, 56, 4, 1, 104, 22,
 	0, FB_VMODE_NONINTERLACED
     }, {
 	/* 640x480 @ 100 Hz, 53.01 kHz hsync */
@@ -248,6 +252,10 @@ static const struct fb_videomode modedb[] = {
 	NULL, 72, 480, 300, 33386, 40, 24, 11, 19, 80, 3,
 	0, FB_VMODE_DOUBLE
     }, {
+	/* 1920x1080 @ 64 Hz, 67.08 kHz hsync (no useful except 64,1920,1080)*/
+	NULL, 64, 1920, 1080, 33386, 40, 24, 11, 19, 80, 3,
+	0, FB_VMODE_DOUBLE
+    }, {
 	/* 1920x1200 @ 60 Hz, 74.5 Khz hsync */
 	NULL, 60, 1920, 1200, 5177, 128, 336, 1, 38, 208, 3,
 	FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT,
@@ -264,11 +272,15 @@ static const struct fb_videomode modedb[] = {
 	/* 1280x800, 60 Hz, 47.403 kHz hsync, WXGA 16:10 aspect ratio */
 	NULL, 60, 1280, 800, 12048, 200, 64, 24, 1, 136, 3,
 	0, FB_VMODE_NONINTERLACED
-    }, {
+    }, 
+#if 0
+	{
        /* 720x576i @ 50 Hz, 15.625 kHz hsync (PAL RGB) */
        NULL, 50, 720, 576, 74074, 64, 16, 39, 5, 64, 5,
        0, FB_VMODE_INTERLACED
-    }, {
+    }, 
+#endif
+	{
        /* 800x520i @ 50 Hz, 15.625 kHz hsync (PAL RGB) */
        NULL, 50, 800, 520, 58823, 144, 64, 72, 28, 80, 5,
        0, FB_VMODE_INTERLACED

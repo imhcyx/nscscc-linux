@@ -4,6 +4,10 @@
 # More hacking for modularisation.
 #
 # Prompt user for primary drivers.
+config SOUND_LS1X
+	tristate "loongson sb2f soundcard"
+	depends on SOUND_PRIME && MACH_LOONGSON_LS1X
+	select SND_PCM
 
 config SOUND_BCM_CS4297A
 	tristate "Crystal Sound CS4297a (for Swarm)"

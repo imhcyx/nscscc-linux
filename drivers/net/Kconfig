@@ -139,6 +139,25 @@ config VETH
 	  When one end receives the packet it appears on its pair and vice
 	  versa.
 
+config LS1X_GMAC
+	tristate "Loongson ls1x GMAC support"
+	default n
+
+config GMAC_NAPI
+	tristate "ls1x GMAC use napi"
+	default n
+
+config GMAC_COHERENT
+	bool "ls1x gmac coherent"
+	default n
+	depends on LS1X_GMAC
+
+config FIX_COHERENT_UNALIGNED
+	bool "fix coherent unaligned"
+	depends on GMAC_COHERENT
+	default y
+
+
 config NET_SB1000
 	tristate "General Instruments Surfboard 1000"
 	depends on PNP

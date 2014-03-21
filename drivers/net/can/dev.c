@@ -483,10 +483,12 @@ int open_candev(struct net_device *dev)
 {
 	struct can_priv *priv = netdev_priv(dev);
 
+#if 0
 	if (!priv->bittiming.tq && !priv->bittiming.bitrate) {
 		dev_err(dev->dev.parent, "bit-timing not yet defined\n");
 		return -EINVAL;
 	}
+#endif
 
 	/* Switch carrier on if device was stopped while in bus-off state */
 	if (!netif_carrier_ok(dev))

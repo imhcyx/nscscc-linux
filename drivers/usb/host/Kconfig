@@ -381,3 +381,11 @@ config USB_HWA_HCD
 
 	  To compile this driver a module, choose M here: the module
 	  will be called "hwa-hc".
+config USB_LS1X_EHCI_HCD    
+	bool "loongson 1A/1B/1C ehci HCD support"
+	default n
+
+config USB_LS1X_OHCI_HCD    
+    bool "loongson 1A/1B/1C OHCI HCD support"
+    default n
+

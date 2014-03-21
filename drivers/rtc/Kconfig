@@ -827,4 +827,14 @@ config RTC_DRV_PCAP
 	  If you say Y here you will get support for the RTC found on
 	  the PCAP2 ASIC used on some Motorola phones.
 
+config RTC_DRV_LS1X
+	tristate "loongson ls1a,ls1b rtc"
+	depends on RTC_CLASS
+	help
+	  If you say yes here you will get support for the
+	  loongson ls1x RTC.
+
+	  This driver can also be built as a module. If so, the module
+	  will be called rtc-ls1x.
+
 endif # RTC_CLASS
