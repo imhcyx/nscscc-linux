@@ -118,22 +118,22 @@ static int ls1x_board_irq_set_type(unsigned int irq, unsigned int flow_type)
 	if (flow_type & IRQF_TRIGGER_PROBE)
 		return 0;
 	switch (flow_type & IRQF_TRIGGER_MASK) {
-	case IRQF_TRIGGER_RISING:	mode = 0;	break;
-	case IRQF_TRIGGER_FALLING:	mode = 1;	break;
-	case IRQF_TRIGGER_HIGH:	mode = 2;	break;
-	case IRQF_TRIGGER_LOW:	mode = 3;	break;
+	case IRQF_TRIGGER_RISING:	mode = 3;	break;
+	case IRQF_TRIGGER_FALLING:	mode = 2;	break;
+	case IRQF_TRIGGER_HIGH:	mode = 1;	break;
+	case IRQF_TRIGGER_LOW:	mode = 0;	break;
 	default:
 		return -EINVAL;
 	}
 
 
 	if(mode & 1)
-	(ls1x_board_hw0_icregs+(irq_nr>>5))->int_pol = (1 << (irq_nr&0x1f));
+	(ls1x_board_hw0_icregs+(irq_nr>>5))->int_pol |= (1 << (irq_nr&0x1f));
 	else
 	(ls1x_board_hw0_icregs+(irq_nr>>5))->int_pol &= ~(1 << (irq_nr&0x1f));
 
 	if(mode & 2)
-	(ls1x_board_hw0_icregs+(irq_nr>>5))->int_edge = (1 << (irq_nr&0x1f));
+	(ls1x_board_hw0_icregs+(irq_nr>>5))->int_edge |= (1 << (irq_nr&0x1f));
 	else
 	(ls1x_board_hw0_icregs+(irq_nr>>5))->int_edge &= ~(1 << (irq_nr&0x1f));
 
