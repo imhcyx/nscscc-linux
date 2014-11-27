@@ -14,6 +14,9 @@
 void __init prom_init_memory(void)
 {
     add_memory_region(0x0, (memsize << 20), BOOT_MEM_RAM);
+#ifdef CONFIG_HIGHMEM
+    add_memory_region(0x50000000, (highmemsize << 20), BOOT_MEM_RAM);
+#endif
 }
 
 /* override of arch/mips/mm/cache.c: __uncached_access */
