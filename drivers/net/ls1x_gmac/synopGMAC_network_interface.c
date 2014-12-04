@@ -58,7 +58,6 @@ static const struct net_device_ops ls1x_gmac_netdev_ops = {
 	.ndo_do_ioctl = &synopGMAC_linux_do_ioctl,
 	.ndo_tx_timeout = &synopGMAC_linux_tx_timeout,
 };
-static struct timer_list synopGMAC_cable_unplug_timer;
 static u32 GMAC_Power_down; // This global variable is used to indicate the ISR whether the interrupts occured in the process of powering down the mac or not
 
 
@@ -170,8 +169,8 @@ static void synopGMAC_linux_cable_unplug_function(synopGMACPciNetworkAdapter *ad
 	synopGMACdevice            *gmacdev = adapter->synopGMACdev;
 	struct ethtool_cmd cmd;
 
-	init_timer(&synopGMAC_cable_unplug_timer);
-	synopGMAC_cable_unplug_timer.expires = CHECK_TIME + jiffies;
+	init_timer(&adapter->timer);
+	adapter->timer.expires = CHECK_TIME + jiffies;
 
 	if(!gmac_get_link(adapter->synopGMACnetdev)){
 		    if(gmacdev->LinkState)
@@ -198,7 +197,7 @@ static void synopGMAC_linux_cable_unplug_function(synopGMACPciNetworkAdapter *ad
 			}
 			//  synopGMAC_intr_handler(0, adapter->synopGMACnetdev);
 	}
-	add_timer(&synopGMAC_cable_unplug_timer);
+	add_timer(&adapter->timer);
 }
 
 void synopGMAC_linux_powerdown_mac(synopGMACdevice *gmacdev)
@@ -1296,11 +1295,11 @@ s32 synopGMAC_linux_open(struct net_device *netdev)
 	
 
 	TR("Setting up the cable unplug timer\n");
-	init_timer(&synopGMAC_cable_unplug_timer);
-	synopGMAC_cable_unplug_timer.function = (void *)synopGMAC_linux_cable_unplug_function;
-	synopGMAC_cable_unplug_timer.data = (ulong) adapter;
-	synopGMAC_cable_unplug_timer.expires = CHECK_TIME + jiffies;
-	add_timer(&synopGMAC_cable_unplug_timer);
+	init_timer(&adapter->timer);
+	adapter->timer.function = (void *)synopGMAC_linux_cable_unplug_function;
+	adapter->timer.data = (ulong) adapter;
+	adapter->timer.expires = CHECK_TIME + jiffies;
+	add_timer(&adapter->timer);
 
 	synopGMAC_clear_interrupt(gmacdev);
 	/*
@@ -1416,7 +1415,7 @@ s32 synopGMAC_linux_close(struct net_device *netdev)
 #endif
 	
 	TR("Freeing the cable unplug timer\n");	
-	del_timer(&synopGMAC_cable_unplug_timer);
+	del_timer(&adapter->timer);
 
 	return -ESYNOPGMACNOERR;
 

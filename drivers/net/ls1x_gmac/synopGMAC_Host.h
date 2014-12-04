@@ -27,6 +27,7 @@ int irq;
 #ifdef CONFIG_GMAC_NAPI
 struct napi_struct napi;
 #endif
+struct timer_list timer;
 } synopGMACPciNetworkAdapter;
 
 
