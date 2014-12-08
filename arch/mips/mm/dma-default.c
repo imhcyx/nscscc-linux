@@ -199,6 +199,11 @@ int dma_map_sg(struct device *dev, struct scatterlist *sg, int nents,
 		addr = (unsigned long) sg_virt(sg);
 		if (!plat_device_is_coherent(dev) && addr)
 			__dma_sync(addr, sg->length, direction);
+#ifdef CONFIG_CPU_LOONGSON232
+		if(page_to_phys(sg_page(sg))>=0x40000000)
+		 sg->dma_address = page_to_phys(sg_page(sg));
+		else
+#endif
 		sg->dma_address = plat_map_dma_mem(dev,
 				                   (void *)addr, sg->length);
 	}
