@@ -3377,7 +3377,8 @@ static void ahci_init_controller_platform(struct ata_host *host)
 static void ahci_save_initial_config_platform(struct platform_device *pdev,
 				     struct ahci_host_priv *hpriv)
 {
-	void __iomem *mmio = (pdev->dev).platform_data;//0x1fe00000;
+	void __iomem **table = (pdev->dev).platform_data;
+	void __iomem *mmio = table[AHCI_PCI_BAR];
 	u32 cap, cap2, vers, port_map;
 	int i;
 	int mv;
@@ -3579,7 +3580,8 @@ static int ahci_init_one_platform(struct platform_device *pdev)
 
 	if (ahci_em_messages && (hpriv->cap & HOST_CAP_EMS)) {
 		u8 messages;
-		void __iomem *mmio = (pdev->dev).platform_data;//0x1fe00000
+		void __iomem **table = (pdev->dev).platform_data;
+		void __iomem *mmio = table[AHCI_PCI_BAR];
 		u32 em_loc = readl(mmio + HOST_EM_LOC);
 		u32 em_ctl = readl(mmio + HOST_EM_CTL);
 
@@ -3606,7 +3608,7 @@ static int ahci_init_one_platform(struct platform_device *pdev)
 	host = ata_host_alloc_pinfo(&pdev->dev, ppi, n_ports);
 	if (!host)
 		return -ENOMEM;
-	host->iomap = (pdev->dev).platform_data;//0x1fe00000
+	host->iomap = (pdev->dev).platform_data;
 	host->private_data = hpriv;
 
 	if (!(hpriv->cap & HOST_CAP_SSS) || ahci_ignore_sss)
@@ -3649,7 +3651,6 @@ static int ahci_init_one_platform(struct platform_device *pdev)
 	ahci_init_controller_platform(host);
 	ahci_print_info_platform(host);
 
-//	pci_set_master(pdev);
 	return ata_host_activate(host, irq, ahci_interrupt, IRQF_SHARED,
 				 &ahci_sht);
 }
