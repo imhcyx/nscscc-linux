@@ -52,12 +52,6 @@ static int ls1x_spi_setup(struct spi_device *spi)
 	if(spi->chip_select >= spi->master->num_chipselect)
 		return -EINVAL;
 
-/*in here set cs*/
-	num = spi->chip_select;	
-	value = 1 << num;
-	ls1x_spi_write_reg(ls1x_spi, SFCS, value);
-	ls1x_spi->cs_active = 1;
-
 	return 0;
 }
 
@@ -70,8 +64,6 @@ ls1x_spi_write_read_8bit( struct spi_device *spi,
 	int i;
 	ls1x_spi = spi_master_get_devdata(spi->master);
 
-	if (ls1x_spi->cs_active == 0)
-		ls1x_spi_setup(spi);	
 	
 	if (tx_buf && *tx_buf){
 		ls1x_spi_write_reg(ls1x_spi, FIFO, *((*tx_buf)++));
@@ -115,6 +107,12 @@ out:
 
 }
 
+static inline int set_cs(struct ls1x_spi *ls1x_spi, struct spi_device  *spi, int val)
+{
+		int cs = ls1x_spi_read_reg(ls1x_spi, SFCS)&~(0x11 << spi->chip_select);
+		ls1x_spi_write_reg(ls1x_spi, SFCS, (val?(0x11 << spi->chip_select):(0x1 << spi->chip_select))|cs);
+}
+
 static void ls1x_spi_work(struct work_struct *work)
 {
 	int i = 0;
@@ -136,6 +134,11 @@ static void ls1x_spi_work(struct work_struct *work)
 		spin_unlock_irq(&ls1x_spi->lock);
 
 		spi = m->spi;
+	ls1x_spi_write_reg(ls1x_spi, PARA, 0x46);
+
+		/*in here set cs*/
+		set_cs(ls1x_spi, spi, 0);
+
 
 
 		list_for_each_entry(t, &m->transfers, transfer_list) {
@@ -145,20 +148,14 @@ static void ls1x_spi_work(struct work_struct *work)
 		   		m->actual_length +=
 			#endif
 					ls1x_spi_write_read(spi, t);
-			#ifndef CONFIG_MMC_SPI
-			if(m->actual_length == (t->len+1))
-				goto msg_done; 
-			#endif
 		}
 
 msg_done:
+	ls1x_spi_write_reg(ls1x_spi, PARA, 0x46);
+	set_cs(ls1x_spi, spi, 1);
 	m->complete(m->context);
 
-	ls1x_spi->cs_active = 0;
-	ls1x_spi_write_reg(ls1x_spi, PARA, 0x46);
-    value = spi->chip_select;
-	value = (1<<value)|(1<<(value + 4));
-	ls1x_spi_write_reg(ls1x_spi, SFCS, value);
+
 	spin_lock_irq(&ls1x_spi->lock);
 	}
 
@@ -255,9 +252,9 @@ static int __init ls1x_spi_probe(struct platform_device *pdev)
 
 /*next we will set figure for controller eg: forbid interrupt*/
 	//for gj ls1a 166MHZ ddr freq
-	if (bus_clock > 160000000)
+	if (1/*bus_clock > 160000000*/)
 	{
-		ls1x_spi_write_reg(spi, SPCR, 0x52);
+		ls1x_spi_write_reg(spi, SPCR, 0x51);
 		ls1x_spi_write_reg(spi, SPER, 0x04);
 	}
 	else
