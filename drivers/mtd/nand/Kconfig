@@ -494,4 +494,15 @@ config MTD_NAND_LS1B
 	help
 	  This enables the NAND flash controller on the LS1B SoC.
 
+config MTD_SNAND_MT29F
+	tristate "SPINAND Device Support for Micron & GigaDevice"
+	depends on MTD
+	select SPI
+	help
+	  This enables support for accessing Micron SPI NAND flash
+	  devices.
+	  If you have Micron SPI NAND chip say yes.
+
+	  If unsure, say no here.
+
 endif # MTD_NAND
