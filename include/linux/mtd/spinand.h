@@ -41,6 +41,7 @@
 #define REG_BLOCK_LOCK			0xa0
 #define REG_OTP				0xb0
 #define REG_STATUS			0xc0/* timing */
+#define REG_STRENGTH		0xd0
 
 /* status */
 #define STATUS_OIP_MASK			0x01
@@ -81,6 +82,7 @@ struct spinand_info {
 	struct nand_ecclayout *ecclayout;
 	struct spi_device *spi;
 	void *priv;
+	int gd_ctype;
 };
 
 struct nand_state {
