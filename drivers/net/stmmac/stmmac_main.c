@@ -77,6 +77,7 @@
 
 #define STMMAC_ALIGN(x)	L1_CACHE_ALIGN(x)
 #define JUMBO_LEN	9000
+static int eth_mac_addr1(struct net_device *dev, void *p);
 
 /* Module parameters */
 #define TX_TIMEO 5000 /* default 5 seconds */
@@ -1810,7 +1811,7 @@ static const struct net_device_ops stmmac_netdev_ops = {
 #ifdef CONFIG_NET_POLL_CONTROLLER
 	.ndo_poll_controller = stmmac_poll_controller,
 #endif
-	.ndo_set_mac_address = eth_mac_addr,
+	.ndo_set_mac_address = eth_mac_addr1,
 };
 
 /**
@@ -1876,7 +1877,7 @@ static int stmmac_hw_init(struct stmmac_priv *priv)
 	return ret;
 }
 
-static int eth_mac_addr(struct net_device *dev, void *p)
+static int eth_mac_addr1(struct net_device *dev, void *p)
 {
 	struct sockaddr *addr = p;
 
