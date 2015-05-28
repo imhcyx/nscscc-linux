@@ -967,7 +967,7 @@ const char *part_probes[] = { "cmdlinepart", NULL };
 		 return add_mtd_device(mtd);
 #endif
 fail_free_irq:
-	free_irq(13, info);
+	free_irq(irq, info);
 fail_free_buf:
     	dma_free_coherent(&pdev->dev, info->data_buff_size,info->data_buff, info->data_buff_phys);
 fail_free_io:
