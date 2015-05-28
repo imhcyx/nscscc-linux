@@ -28,6 +28,7 @@
 #include <linux/phy.h>
 #include <../drivers/input/keyboard/gpio_keys.h>
 #include <linux/delay.h>
+#include <linux/mtd/spinand.h>
 
 struct ls1b_nand_platform_data{
 	int enable_arbiter;
@@ -61,8 +62,8 @@ static struct ls1b_nand_platform_data ls1b_nand_parts = {
 //#define LS1A_UARTCLK 66666666
 #define LS1A_UARTCLK 33333333
 struct plat_serial8250_port uart8250_data[] = {
-	//{ .uartclk=LS1A_UARTCLK, .mapbase=0xbfe41000,.membase=(void *)0xbfe41000,.irq=LS1X_BOARD_UART0_IRQ,.flags=UPF_BOOT_AUTOCONF | UPF_SKIP_TEST,.iotype=UPIO_MEM,.regshift   = 0,},
 	{ .uartclk=LS1A_UARTCLK, .mapbase=0x1fe40000,.membase=(void *)0xbfe40000,.irq=2,.flags=UPF_BOOT_AUTOCONF | UPF_SKIP_TEST,.iotype=UPIO_MEM,.regshift   = 0,},
+	//{ .uartclk=LS1A_UARTCLK, .mapbase=0xbfe41000,.membase=(void *)0xbfe41000,.irq=LS1X_BOARD_UART0_IRQ,.flags=UPF_BOOT_AUTOCONF | UPF_SKIP_TEST,.iotype=UPIO_MEM,.regshift   = 0,},
 	{ .uartclk=LS1A_UARTCLK, .mapbase=0x1fe44000,.membase=(void *)0xbfe44000,.irq=3,.flags=UPF_BOOT_AUTOCONF | UPF_SKIP_TEST,.iotype=UPIO_MEM,.regshift   = 0,},
 	{ .uartclk = LS1A_UARTCLK, .mapbase=0x1fe48000,.membase=(void *)0xbfe48000,.irq=4,.flags=UPF_BOOT_AUTOCONF | UPF_SKIP_TEST,.iotype=UPIO_MEM,.regshift   = 0,},
 	{ .uartclk = LS1A_UARTCLK, .mapbase=0x1fe4c000,.membase=(void *)0xbfe4c000,.irq=5,.flags=UPF_BOOT_AUTOCONF | UPF_SKIP_TEST,.iotype=UPIO_MEM,.regshift   = 0,},
@@ -594,17 +595,17 @@ static struct platform_device *ls1x_platform_devices[] __initdata = {
 	&ls1x_spi0_device,
 	&ls1x_spi1_device,
 	&uart8250_device,
-	&ls1x_ohci_device,
-	&ls1x_ehci_device,
+	//&ls1x_ohci_device,
+	//&ls1x_ehci_device,
 	&ls1x_gmac1_device,
-	//  &ls1x_gmac2_device,
+	&ls1x_gmac2_device,
 	//&ls1b_phy_device,
-	&ls1b_eth0_device,
+	//&ls1b_eth0_device,
 	//	&ls1b_eth1_device,
 	&ls1b_nand_device,
-	&ls1x_dc_device,
+	//&ls1x_dc_device,
 	&loongson232_cpufreq_device,
-	&ls1x_audio_device,
+	//&ls1x_audio_device,
 	&ls1b_can1_device,
 	//	&ls1b_can2_device,
 	&ls1x_i2c_device,
@@ -612,13 +613,41 @@ static struct platform_device *ls1x_platform_devices[] __initdata = {
 	&ls1x_gpio_keys_device,
 };
 
+static struct mtd_partition ls2h_spi_parts[] = {
+	[0] = {
+		.name		= "spinand0",
+		.offset		= 0,
+		.size		= 32 * 1024 * 1024,
+	},
+	[1] = {
+		.name		= "spinand1",
+		.offset		= 32 * 1024 * 1024,
+		.size		= 0,	
+	},
+};
+
+struct spi_nand_platform_data ls2h_spi_nand = {
+	.name		= "LS_Nand_Flash",
+	.parts		= ls2h_spi_parts,
+	.nr_parts	= ARRAY_SIZE(ls2h_spi_parts),
+};
+
 static struct spi_board_info ls_ls1x_spi_device[]={
+#if 0
 	{
 		.modalias   = "mmc_spi",
 		.platform_data   = NULL,
 		.bus_num    =0,
 		.chip_select =1,
 		.mode       =0,
+	},
+#endif
+	{	/* spi nand Flash chip */
+		.modalias	= "mt29f",	
+		.bus_num 		= 1,
+		.chip_select	= 0,
+		.max_speed_hz	= 60000000,
+		.platform_data	= &ls2h_spi_nand,
 	},
 };
 
@@ -641,11 +670,13 @@ extern unsigned long bus_clock;
 int ls1b_platform_init(void)
 {
 	int ret, i;
+#ifdef CONFIG_USB
 	*(volatile int *)0xbfd00424 &= ~0x80000000;
 	*(volatile int *)0xbfd00424;
 	mdelay(1);
 	/*ls1g usb reset stop*/
 	*(volatile int *)0xbfd00424 |= 0x80000000;
+#endif
 	//spi_register_board_info(spi_board_info, ARRAY_SIZE(spi_board_info));
 	spi_register_board_info(ls_ls1x_spi_device, ARRAY_SIZE(ls_ls1x_spi_device));
 	ret = i2c_register_board_info(0,&ls1x_i2c_info,4);
