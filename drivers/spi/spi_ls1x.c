@@ -144,9 +144,7 @@ static void ls1x_spi_work(struct work_struct *work)
 		list_for_each_entry(t, &m->transfers, transfer_list) {
 		
 			if (t->len)
-			#ifndef CONFIG_MMC_SPI
 		   		m->actual_length +=
-			#endif
 					ls1x_spi_write_read(spi, t);
 		}
 
@@ -252,9 +250,9 @@ static int __init ls1x_spi_probe(struct platform_device *pdev)
 
 /*next we will set figure for controller eg: forbid interrupt*/
 	//for gj ls1a 166MHZ ddr freq
-	if (1/*bus_clock > 160000000*/)
+	if (bus_clock > 160000000)
 	{
-		ls1x_spi_write_reg(spi, SPCR, 0x51);
+		ls1x_spi_write_reg(spi, SPCR, 0x52);
 		ls1x_spi_write_reg(spi, SPER, 0x04);
 	}
 	else
