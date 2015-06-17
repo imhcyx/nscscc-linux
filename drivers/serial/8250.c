@@ -2393,7 +2393,7 @@ serial8250_set_termios(struct uart_port *port, struct ktermios *termios,
 	}
 
 #ifdef CONFIG_NORECONFIG_SERIAL
-	if (!up->port.line)
+	if (up->port.line)
 #endif
 		serial_dl_write(up, quot);
 	/*
