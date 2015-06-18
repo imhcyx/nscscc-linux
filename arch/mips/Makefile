@@ -126,11 +126,13 @@ cflags-$(CONFIG_CPU_LOONGSON2E) += \
 	$(call cc-option,-march=loongson2e,-march=r4600)
 
 cflags-$(CONFIG_CPU_LOONGSON232) += $(call cc-option,-march=mips32,-mips32 -U_MIPS_ISA -D_MIPS_ISA=_MIPS_ISA_MIPS32) \
-			$(call cc-option,-Wa$(comma)-mfix-gs2f-kernel,) -Wa,-mips32 -Wa,--trap
+			 -Wa,-mips32 -Wa,--trap
 
+ifdef CONFIG_LOONGSON_FIX_RANDOM_INSTRUCTION_FETCH_SIDE_EFFECT_TO_DEVICE
 
-cflags-$(CONFIG_CPU_LOONGSON232) += $(call cc-option,-march=mips32,-mips32 -U_MIPS_ISA -D_MIPS_ISA=_MIPS_ISA_MIPS32) \
-			$(call cc-option,-Wa$(comma)-mfix-gs2f-kernel,) -Wa,-mips32 -Wa,--trap
+cflags-$(CONFIG_CPU_LOONGSON232) += $(call cc-option,-Wa$(comma)-mfix-gs2f-kernel,)
+
+endif
 
 cflags-$(CONFIG_CPU_MIPS32_R1)	+= $(call cc-option,-march=mips32,-mips32 -U_MIPS_ISA -D_MIPS_ISA=_MIPS_ISA_MIPS32) \
 			-Wa,-mips32 -Wa,--trap
