@@ -7,7 +7,9 @@ config MIPS
 	select HAVE_ARCH_KGDB
 	# Horrible source of confusion.  Die, die, die ...
 	select EMBEDDED
+	select HAVE_PERF_EVENTS
 	select RTC_LIB if !LEMOTE_FULOONG2E
+	select GENERIC_ATOMIC64 if !64BIT
 
 mainmenu "Linux/MIPS Kernel Configuration"
 
