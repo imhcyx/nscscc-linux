@@ -1137,6 +1137,7 @@ s32 synopGMAC_get_mac_addr(synopGMACdevice *gmacdev, u32 MacHigh, u32 MacLow, u8
 
 s32 synopGMAC_attach (synopGMACdevice * gmacdev, void *macBase,void *dmaBase,u32 phyBase,u8 *mac_addr0) 
 {
+	spin_lock_init(&gmacdev->lock);
 	/*Make sure the Device data strucure is cleared before we proceed further*/
 	memset((void *) gmacdev,0,sizeof(synopGMACdevice));
 	/*Populate the mac and dma base addresses*/
@@ -1681,6 +1682,7 @@ s32 synopGMAC_get_tx_qptr(synopGMACdevice * gmacdev, u32 * Status, u32 * Buffer1
 	if(synopGMAC_is_desc_empty(txdesc))
 		return -1;
 
+	spin_lock_irq(&gmacdev->lock);
 	(gmacdev->BusyTxDesc)--; //busy tx descriptor is reduced by one as it will be handed over to Processor now
 
 	if(Status != 0)   
@@ -1717,6 +1719,7 @@ s32 synopGMAC_get_tx_qptr(synopGMACdevice * gmacdev, u32 * Status, u32 * Buffer1
 		gmacdev->TxBusyDesc = synopGMAC_is_last_tx_desc(gmacdev,txdesc) ? gmacdev->TxDesc : (txdesc + 1);
 		synopGMAC_tx_desc_init_ring(txdesc, synopGMAC_is_last_tx_desc(gmacdev,txdesc));
 	}
+	spin_unlock_irq(&gmacdev->lock);
 	TR("%02d %08x %08x %08x %08x %08x %08x %08x\n",txover,(u32)txdesc,txdesc->status,txdesc->length,txdesc->buffer1,txdesc->buffer2,txdesc->data1,txdesc->data2);
 
 	return txover;	
@@ -1749,6 +1752,7 @@ s32 synopGMAC_get_tx_qptr(synopGMACdevice * gmacdev, u32 * Status, u32 * Buffer1
 	if(synopGMAC_is_desc_empty(txdesc))
 		return -1;
 
+	spin_lock_irq(&gmacdev->lock);
 	(gmacdev->BusyTxDesc)--; //busy tx descriptor is reduced by one as it will be handed over to Processor now
 
 	if(Status != 0)   
@@ -1778,6 +1782,7 @@ s32 synopGMAC_get_tx_qptr(synopGMACdevice * gmacdev, u32 * Status, u32 * Buffer1
 		gmacdev->TxBusyDesc = synopGMAC_is_last_tx_desc(gmacdev,txdesc) ? gmacdev->TxDesc : (txdesc + 1);
 		synopGMAC_tx_desc_init_ring(txdesc, synopGMAC_is_last_tx_desc(gmacdev,txdesc));
 	}
+	spin_unlock_irq(&gmacdev->lock);
 	TR("%02d %p %08x %08x %08x %08x %lx %lx\n",txover,txdesc,txdesc->status,txdesc->length,txdesc->buffer1,txdesc->buffer2,txdesc->data1,txdesc->data2);
 
 	return txover;	
@@ -1809,6 +1814,7 @@ s32 synopGMAC_set_tx_qptr(synopGMACdevice * gmacdev, u32 Buffer1, u32 Length1, u
 	if(!synopGMAC_is_desc_empty(txdesc))
 		return -1;
 
+	spin_lock_irq(&gmacdev->lock);
 	(gmacdev->BusyTxDesc)++; //busy tx descriptor is reduced by one as it will be handed over to Processor now
 	
 	if(synopGMAC_is_tx_desc_chained(txdesc)){
@@ -1872,6 +1878,7 @@ s32 synopGMAC_set_tx_qptr(synopGMACdevice * gmacdev, u32 Buffer1, u32 Length1, u
 		gmacdev->TxNext = synopGMAC_is_last_tx_desc(gmacdev,txdesc) ? 0 : txnext + 1;
 		gmacdev->TxNextDesc = synopGMAC_is_last_tx_desc(gmacdev,txdesc) ? gmacdev->TxDesc : (txdesc + 1);
 	}
+	spin_unlock_irq(&gmacdev->lock);
 
 
 	TR("%02d %p %08x %08x %08x %08x %lx %lx\n",txnext,txdesc,txdesc->status,txdesc->length,txdesc->buffer1,txdesc->buffer2,txdesc->data1,txdesc->data2);

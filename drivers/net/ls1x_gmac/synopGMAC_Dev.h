@@ -145,6 +145,7 @@ typedef struct synopGMACDeviceStruct
   u32 DuplexMode;               /* Duplex mode of the Phy				    */
   u32 Speed;			/* Speed of the Phy					    */
   u32 LoopBackMode; 		/* Loopback status of the Phy				    */
+  spinlock_t lock;
 } synopGMACdevice;
 
 

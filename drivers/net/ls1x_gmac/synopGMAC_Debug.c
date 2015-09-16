@@ -121,6 +121,7 @@ typedef struct synopGMACDeviceStruct
   u32 Speed;
   u32 LoopBackMode; 
   
+  spinlock_t lock;
 } synopGMACdevice;
 
 
