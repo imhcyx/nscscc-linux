@@ -299,26 +299,6 @@ static struct platform_device loongson232_cpufreq_device = {
 	.id = -1,
 };
 
-#if 1
-/*
- * stmac
- */
-
-struct plat_stmmacphy_data ls1b_phy_data = {
-	.bus_id    = 0,
-	.phy_addr  = 0,
-	.phy_mask  = 0,
-	.interface = PHY_INTERFACE_MODE_GMII,
-	.phy_reset = NULL,
-}; 
-
-struct platform_device ls1b_phy_device = {
-	.name = "stmmacphy",
-	.dev  = {
-		.platform_data = &ls1b_phy_data,
-	},
-};
-#endif
 
 //for gmac1
 static struct resource ls1b_eth0_stmac_resources[] = { 
@@ -376,12 +356,12 @@ static struct resource ls1b_eth1_stmac_resources[] = {
 };
 
 static struct stmmac_mdio_bus_data ls1b_eth1_mdio_bus_data = {
-	.bus_id		= 0,
+	.bus_id		= 1,
 	.phy_mask	= 0,
 };
 
 static struct plat_stmmacenet_data ls1b_eth1_data = {
-	.bus_id		= 0,
+	.bus_id		= 1,
 	.phy_addr	= -1,
 	.mdio_bus_data	= &ls1b_eth1_mdio_bus_data,
 	.pbl		= 32,
@@ -595,22 +575,21 @@ static struct platform_device *ls1x_platform_devices[] __initdata = {
 	&ls1x_spi0_device,
 	&ls1x_spi1_device,
 	&uart8250_device,
-	//&ls1x_ohci_device,
-	//&ls1x_ehci_device,
-	&ls1x_gmac1_device,
-	&ls1x_gmac2_device,
-	//&ls1b_phy_device,
-	//&ls1b_eth0_device,
-	//	&ls1b_eth1_device,
+	&ls1x_ohci_device,
+	&ls1x_ehci_device,
+//	&ls1x_gmac1_device,
+//	&ls1x_gmac2_device,
+	&ls1b_eth0_device,
+	&ls1b_eth1_device,
 	&ls1b_nand_device,
-	//&ls1x_dc_device,
+	&ls1x_dc_device,
 	&loongson232_cpufreq_device,
 	//&ls1x_audio_device,
 	&ls1b_can1_device,
-	//	&ls1b_can2_device,
-	&ls1x_i2c_device,
-	&ls1x_rtc_device,
-	&ls1x_gpio_keys_device,
+	//&ls1b_can2_device,
+	//&ls1x_i2c_device,
+	//&ls1x_rtc_device,
+	//&ls1x_gpio_keys_device,
 };
 
 static struct mtd_partition ls2h_spi_parts[] = {

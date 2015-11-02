@@ -325,56 +325,6 @@ static struct platform_device loongson232_cpufreq_device = {
 	.id = -1,
 };
 
-static struct plat_stmmacphy_data  phy1_private_data = {
-	.bus_id = 1,
-	.phy_addr = -1,
-	.phy_mask = 0,
-	.interface = PHY_INTERFACE_MODE_GMII,
-	
-};
-
-struct platform_device ls2h_eth1_phy = {
-	.name = "stmmacphy",
-	.id = 1,
-	.num_resources = 1,
-	.resource = (struct resource[]){
-		{
-			.name = "phyirq",
-			.start = PHY_POLL,
-			.end = PHY_POLL,
-			.flags = IORESOURCE_IRQ,
-		},
-	},
-	.dev = {
-		.platform_data = &phy1_private_data,
-	},
-};
-
-static struct plat_stmmacphy_data  phy0_private_data = {
-	.bus_id = 0,
-	.phy_addr = -1,
-	.phy_mask = 0,
-	.interface = PHY_INTERFACE_MODE_GMII,
-	
-};
-
-struct platform_device ls2h_eth0_phy = {
-	.name = "stmmacphy",
-	.id = 0,
-	.num_resources = 1,
-	.resource = (struct resource[]){
-		{
-			.name = "phyirq",
-			.start = PHY_POLL,
-			.end = PHY_POLL,
-			.flags = IORESOURCE_IRQ,
-		},
-	},
-	.dev = {
-		.platform_data = &phy0_private_data,
-	},
-};
-
 //for gmac1
 static struct resource ls1a_eth0_stmac_resources[] = { 
  [0] = {
@@ -431,12 +381,12 @@ static struct resource ls1a_eth1_stmac_resources[] = {
 };
 
 static struct stmmac_mdio_bus_data ls1a_eth1_mdio_bus_data = {
-	.bus_id		= 0,
+	.bus_id		= 1,
 	.phy_mask	= 0,
 };
 
 static struct plat_stmmacenet_data ls1a_eth1_data = {
-	.bus_id		= 0,
+	.bus_id		= 1,
 	.phy_addr	= -1,
 	.mdio_bus_data	= &ls1a_eth1_mdio_bus_data,
 	.pbl		= 32,
@@ -572,18 +522,16 @@ static struct platform_device ls1a_rtc_device = {
 */
 
 static struct platform_device *ls1x_platform_devices[] __initdata = {
-    &ls1a_spi0_device,
-    &ls1a_spi1_device,
+	&ls1a_spi0_device,
+	&ls1a_spi1_device,
 	&uart8250_device,
-    &ls1a_ohci_device,
-    &ls1a_ehci_device,
-	&ls1a_gmac1_device,
-//  &ls1a_gmac2_device,
-	//&ls2h_eth0_phy,
-//	&ls2h_eth1_phy,
-//	&ls1a_eth0_device,
+	&ls1a_ohci_device,
+	&ls1a_ehci_device,
+	//&ls1a_gmac1_device,
+	//&ls1a_gmac2_device,
+	&ls1a_eth0_device,
 	&ls1a_eth1_device,
-    &ls1a_nand_device,
+        &ls1a_nand_device,
 	&ls1a_ahci_device,
 	&ls1a_dc_device,
 	&loongson232_cpufreq_device,
