@@ -59,6 +59,8 @@ static int dwmac1000_dma_init(void __iomem *ioaddr, int pbl, u32 dma_tx,
 
 	/* Mask interrupts by writing to CSR7 */
 	writel(DMA_INTR_DEFAULT_MASK, ioaddr + DMA_INTR_ENA);
+	/*mask all mmc tcp offload interrupt*/
+	writel(0x7fffffff, ioaddr+0x0200);
 
 	/* The base address of the RX/TX descriptor lists must be written into
 	 * DMA CSR3 and CSR4, respectively. */
