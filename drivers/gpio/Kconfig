@@ -73,6 +73,12 @@ config GPIO_PL061
 	help
 	  Say yes here to support the PrimeCell PL061 GPIO device
 
+config GPIO_LS1X
+	tristate "ls1a/ls1b gpio"
+	depends on MACH_LOONGSON_LS1X
+	help
+		support ls1a/ls1b gpio drivers
+
 config GPIO_XILINX
 	bool "Xilinx GPIO support"
 	depends on PPC_OF || MICROBLAZE
