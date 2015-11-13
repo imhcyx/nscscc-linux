@@ -1880,16 +1880,58 @@ static int stmmac_hw_init(struct stmmac_priv *priv)
 static int eth_mac_addr1(struct net_device *dev, void *p)
 {
 	struct sockaddr *addr = p;
+	struct stmmac_priv *priv;
 
 	if (netif_running(dev))
 		return -EBUSY;
 	if (!is_valid_ether_addr(addr->sa_data))
 		return -EADDRNOTAVAIL;
+
+	priv = netdev_priv(dev);
 	memcpy(dev->dev_addr, addr->sa_data, ETH_ALEN);
+	/* Copy the MAC addr into the HW  */
+	priv->hw->mac->set_umac_addr(priv->ioaddr, dev->dev_addr, 0);
 	return 0;
 }
 
 static char mac_addr[MAX_ADDR_LEN] = {0x10, 0x10, 0x00, 0x11, 0x70, 0x00, 0, 0};
+
+static char ether_addr[6];
+static int  ether_inited;
+
+
+static int __init get_ethernet_addr(u8 *macaddr)
+{
+	if(ether_inited)
+	{
+	 memcpy(macaddr, ether_addr, 6);
+	 ether_addr[5]++;
+	}
+	else random_ether_addr(macaddr);
+
+	return 0;
+}
+
+/*
+ * Saves at boot time configured settings for any netdevice.
+ */
+static int __init set_ethernet_addr(char *str)
+{
+	int i;
+	char *p = str;
+
+	for(i = 0; i < 6; i++) {
+		ether_addr[i] = simple_strtoul(p,&p,16);
+		p++;
+	}
+
+	ether_inited = 1;
+	return 0;
+}
+
+__setup("ethaddr=", set_ethernet_addr);
+
+
 /**
  * stmmac_dvr_probe
  * @device: device pointer
@@ -1966,7 +2008,7 @@ struct stmmac_priv *stmmac_dvr_probe(struct device *device,
 	spin_lock_init(&priv->lock);
 	spin_lock_init(&priv->tx_lock);
 
-	memcpy(ndev->dev_addr, mac_addr, MAX_ADDR_LEN);
+	get_ethernet_addr(ndev->dev_addr);
 
 	ret = register_netdev(ndev);
 	if (ret) {
