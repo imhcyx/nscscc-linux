@@ -3,6 +3,7 @@
 #include <linux/smp.h>
 #include <asm/fixmap.h>
 #include <asm/tlbflush.h>
+#include <linux/sched.h>
 
 static pte_t *kmap_pte;
 
