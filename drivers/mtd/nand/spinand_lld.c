@@ -38,8 +38,8 @@ static int enable_read_hw_ecc;
 static struct nand_ecclayout spinand_oob_64 = {
 	.eccbytes = 24,
 	.eccpos = {
-		1, 2, 3, 4, 5, 6,
-		17, 18, 19, 20, 21, 22,
+		 3, 4, 5, 6,7,
+		17, 18, 19, 20, 21, 22,23,
 		33, 34, 35, 36, 37, 38,
 		49, 50, 51, 52, 53, 54, },
 	.oobavail = 32,
@@ -55,19 +55,19 @@ static struct nand_ecclayout spinand_oob_64 = {
 };
 
 static struct nand_ecclayout spinand_oob_128 = {
-	.eccbytes = 48,
+	.eccbytes = 24,
 	.eccpos = {
-		   80, 81, 82, 83, 84, 85, 86, 87,
-		   88, 89, 90, 91, 92, 93, 94, 95,
-		   96, 97, 98, 99, 100, 101, 102, 103,
-		   104, 105, 106, 107, 108, 109, 110, 111,
-		   112, 113, 114, 115, 116, 117, 118, 119,
-		   120, 121, 122, 123, 124, 125, 126, 127},
+		   40, 41, 42,43, 44, 45, 46, 47,
+		   48, 49, 50, 51, 52, 53, 54, 55,
+		   56, 57, 58, 59, 60, 61, 62, 63},
 	.oobfree = {
 		{.offset = 2,
-		 .length = 78}}
+		 .length = 38},
+		{.offset = 64,
+		 .length = 64},
+        }
+                
 };
-
 /*
  * spinand_cmd - to process a command to send to the SPI Nand
  * Description:
@@ -75,7 +75,7 @@ static struct nand_ecclayout spinand_oob_128 = {
  *    The command buffer has to initized to 0
  */
 
-int spinand_cmd(struct spi_device *spi, struct spinand_cmd *cmd)
+static int spinand_cmd(struct spi_device *spi, struct spinand_cmd *cmd)
 {
 	struct spi_message message;
 	struct spi_transfer x[4];
@@ -140,13 +140,15 @@ static int spinand_read_id(struct spinand_info *info, u8 *id)
 		return retval;
 	}
 
-	if(nand_id[0] == 0xc8 && nand_id[1] == 0xb4) {
+	if(nand_id[0] == 0xc8/* && nand_id[1] == 0xb4*/) {
 		info->gd_ctype = 1;
 		id[0] = nand_id[0];
 		id[1] = nand_id[1];
+		info->dev_id = id[1];
 	} else {
 		id[0] = nand_id[1];
 		id[1] = nand_id[2];
+		info->dev_id = id[1];
 	}
 
 	return 0;
@@ -205,6 +207,25 @@ static int wait_till_ready(struct spi_device *spi_nand)
 
 	return -1;
 }
+
+static int spinand_reset(struct spi_device *spi_nand)
+{
+	int retval;
+	u8 nand_id[2];
+	struct spinand_cmd cmd = {0};
+
+	cmd.cmd = CMD_RESET;
+
+	retval = spinand_cmd(spi_nand, &cmd);
+	if (retval != 0) {
+		dev_err(&spi_nand->dev, "error %d reading id\n", retval);
+		return retval;
+	}
+	if (wait_till_ready(spi_nand))
+		dev_err(&spi_nand->dev, "WAIT timedout!!!\n");
+
+	return 0;
+}
 /**
  * spinand_get_otp- send command 0xf to read the SPI Nand OTP register
  * Description:
@@ -256,8 +277,7 @@ static int spinand_set_otp(struct spi_device *spi_nand, u8 *otp)
 	}
 	return 0;
 }
-
-#ifdef CONFIG_MTD_SPINAND_ONDIEECC
+#if 1
 /**
  * spinand_enable_ecc- send command 0x1f to write the SPI Nand OTP register
  * Description:
@@ -368,6 +388,19 @@ static int spinand_read_from_cache(struct spinand_info *info, u16 byte_id,
 	u16 column;
 
 	column = byte_id;
+            /*the a_type device requires 4 wrap mode configure bits wrap[3:0]
+             * wrap[3]  wrap[2]   wrap[1]   wrap[0]  wrap length
+             * 0          0         x         x         2112
+             * 0          1         x         x         2048
+             * 1          0         x         x         64
+             * 1          1         x         x         16*/
+	if(info->gd_ctype != 1){
+        if(byte_id > 0)
+        {
+            column |= 0x8000;
+        }
+        }
+        /*if the device is c type ,the CMD_READ_RDM is 0x03,otherwise the CMD_READ_RDM maybe  0x0B*/
 	cmd.cmd = CMD_READ_RDM;
 	cmd.n_addr = 3;
 	if(info->gd_ctype == 1) {
@@ -418,13 +451,16 @@ static int spinand_read_page(struct spinand_info *info, int page_id,
 		if (ret < 0) {
 			dev_err(&info->spi->dev,
 					"err %d read status register\n", ret);
+			memset(rbuf,0,len);
 			return ret;
 		}
 
 		if ((status & STATUS_OIP_MASK) == STATUS_READY) {
 			if ((status & STATUS_ECC_MASK) == STATUS_ECC_ERROR) {
-				dev_err(&info->spi->dev, "ecc error, page=%d\n",
+				dev_err(&info->spi->dev, "ecc error, page=%x\n",
 						page_id);
+				ret = spinand_disable_ecc(info->spi);
+				memset(rbuf,0,len);
 				return 0;
 			}
 			break;
@@ -754,7 +790,16 @@ static void spinand_cmdfunc(struct mtd_info *mtd, unsigned int command,
 	/* READOOB reads only the OOB because no ECC is performed. */
 	case NAND_CMD_READOOB:
 		state->buf_ptr = 0;
-//		spinand_read_page(info, page, 0x800, 0x40, state->buf);
+#if 0
+		if(info->gd_ctype == 0)
+		{
+			if(page == 0xffc0 || page == 0x6440)
+			{
+				memset(state->buf,0,mtd->oobsize);
+				break;
+			}
+		}
+#endif
 		spinand_read_page(info, page, mtd->writesize, mtd->oobsize, state->buf);
 		break;
 	case NAND_CMD_RNDOUT:
@@ -793,6 +838,7 @@ static void spinand_cmdfunc(struct mtd_info *mtd, unsigned int command,
 		break;
 	/* RESET command */
 	case NAND_CMD_RESET:
+		spinand_reset(info->spi);
 		break;
 	default:
 		dev_err(&mtd->dev, "Unknown CMD: 0x%x\n", command);
@@ -887,6 +933,7 @@ static int spinand_probe(struct spi_device *spi_nand)
 
 	info->spi = spi_nand;
 
+	spinand_reset(spi_nand);
 	spinand_lock_block(spi_nand, BL_ALL_UNLOCKED);
 
 	state = devm_kzalloc(&spi_nand->dev, sizeof(struct nand_state),
@@ -921,22 +968,23 @@ static int spinand_probe(struct spi_device *spi_nand)
 #else
 #if 0
 	chip->ecc.mode	= NAND_ECC_SOFT;
+	ret = spinand_disable_ecc(spi_nand);
 #else
 	chip->ecc.mode	= NAND_ECC_NONE;
+	ret = spinand_enable_ecc(spi_nand);
 #endif
-	ret = spinand_disable_ecc(spi_nand);
 #endif
 
 	spinand_read_id(info, spi_flash_id);
 	if(info->gd_ctype == 1) {
 		spinand_driver_strength(info->spi);
-//		chip->ecc.layout = &spinand_oob_128;
-		chip->ecc.size = 4096;
-		chip->ecc.bytes = 48;
+		chip->ecc.layout = &spinand_oob_128;
+		chip->ecc.size = 256;
+		chip->ecc.bytes = 3;
 	} else {
-//		chip->ecc.layout = &spinand_oob_64;
-		chip->ecc.size = 2048;
-		chip->ecc.bytes = 24; 
+		chip->ecc.layout = &spinand_oob_64;
+		chip->ecc.size = 256;
+		chip->ecc.bytes = 3;
 	}
 
 	chip->priv	= info;
@@ -947,11 +995,11 @@ static int spinand_probe(struct spi_device *spi_nand)
 	chip->waitfunc	= spinand_wait;
 	chip->options	|= NAND_CACHEPRG;
 	chip->select_chip = spinand_select_chip;
-
+#if 0
 	chip->ecc.hwctl = ls2h_nand_ecc_hwctl;
 	chip->ecc.calculate = ls2h_nand_ecc_calculate;
 	chip->ecc.correct = ls2h_nand_ecc_correct;
-
+#endif
 	mtd = devm_kzalloc(&spi_nand->dev, sizeof(struct mtd_info), GFP_KERNEL);
 	if (!mtd)
 		return -ENOMEM;
@@ -960,7 +1008,12 @@ static int spinand_probe(struct spi_device *spi_nand)
 
 	mtd->priv = chip;
 	mtd->name = "spinand_flash";
-	if(info->gd_ctype == 1)
+
+	if(0xd4 == spi_flash_id[1])
+		mtd->oobsize = 256;
+	else if(0xdc == spi_flash_id[1])
+		mtd->oobsize = 224;
+	else if(info->gd_ctype == 1)
 		mtd->oobsize = 128;
 	else
 		mtd->oobsize = 64;
@@ -975,8 +1028,7 @@ static int spinand_probe(struct spi_device *spi_nand)
 		return ret;
 
 	return ret;
-#else
-
+#endif
 #ifdef CONFIG_MTD_CMDLINE_PARTS
 	nr_parts = parse_mtd_partitions(mtd, part_probes,
 					      &partitions, 0);
@@ -988,7 +1040,6 @@ static int spinand_probe(struct spi_device *spi_nand)
 		
 	}
 	return add_mtd_partitions(mtd, partitions, nr_parts);
-#endif
 }
 
 /**

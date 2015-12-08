@@ -83,6 +83,7 @@ struct spinand_info {
 	struct spi_device *spi;
 	void *priv;
 	int gd_ctype;
+	unsigned char dev_id;
 };
 
 struct nand_state {
