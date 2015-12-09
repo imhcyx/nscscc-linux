@@ -2548,7 +2548,8 @@ static struct nand_flash_dev *nand_get_flash_type(struct mtd_info *mtd,
 		 */
 		mtd->erasesize = type->erasesize;
 		mtd->writesize = type->pagesize;
-		mtd->oobsize = mtd->writesize / 32;
+		if(!mtd->oobsize)
+			mtd->oobsize = mtd->writesize / 32;
 		busw = type->options & NAND_BUSWIDTH_16;
 	}
 
@@ -2709,6 +2710,7 @@ int nand_scan_tail(struct mtd_info *mtd)
 			chip->ecc.layout = &nand_oob_64;
 			break;
 		case 128:
+		case 224:
 			chip->ecc.layout = &nand_oob_128;
 			break;
 		default:
