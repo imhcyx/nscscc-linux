@@ -118,8 +118,11 @@ static void ls1x_spi_work(struct work_struct *work)
 	int i = 0;
 	struct ls1x_spi *ls1x_spi = 
 		container_of(work, struct ls1x_spi, work);
+	int param;
 
 	spin_lock_irq(&ls1x_spi->lock);
+	param = ls1x_spi_read_reg(ls1x_spi, PARA);
+	ls1x_spi_write_reg(ls1x_spi, PARA, param&~1);
 	while (!list_empty(&ls1x_spi->msg_queue)) {
 
 		struct spi_message *m;
@@ -134,7 +137,6 @@ static void ls1x_spi_work(struct work_struct *work)
 		spin_unlock_irq(&ls1x_spi->lock);
 
 		spi = m->spi;
-	ls1x_spi_write_reg(ls1x_spi, PARA, 0x46);
 
 		/*in here set cs*/
 		set_cs(ls1x_spi, spi, 0);
@@ -149,13 +151,13 @@ static void ls1x_spi_work(struct work_struct *work)
 		}
 
 msg_done:
-	ls1x_spi_write_reg(ls1x_spi, PARA, 0x46);
 	set_cs(ls1x_spi, spi, 1);
 	m->complete(m->context);
 
 
 	spin_lock_irq(&ls1x_spi->lock);
 	}
+	ls1x_spi_write_reg(ls1x_spi, PARA, param);
 
 	spin_unlock_irq(&ls1x_spi->lock);
 }
@@ -215,7 +217,7 @@ static int __init ls1x_spi_probe(struct platform_device *pdev)
 	
 	if (master == NULL) {
 		dev_dbg(&pdev->dev, "master allocation failed\n");
-		return-ENOMEM;
+		return -ENOMEM;
 	}
 
 	if (pdev->id != -1)
@@ -250,9 +252,9 @@ static int __init ls1x_spi_probe(struct platform_device *pdev)
 
 /*next we will set figure for controller eg: forbid interrupt*/
 	//for gj ls1a 166MHZ ddr freq
-	if (bus_clock > 160000000)
+	if (1/*bus_clock > 160000000*/)
 	{
-		ls1x_spi_write_reg(spi, SPCR, 0x52);
+		ls1x_spi_write_reg(spi, SPCR, 0x51);
 		ls1x_spi_write_reg(spi, SPER, 0x04);
 	}
 	else
