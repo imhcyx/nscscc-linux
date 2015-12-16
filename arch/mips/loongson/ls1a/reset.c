@@ -19,6 +19,11 @@
 
 static void loongson_restart(char *command)
 {
+
+	writel(1,0xbfe7c060);
+	writel(1,0xbfe7c064);
+	writel(1,0xbfe7c068);
+
 	/* do preparation for reboot */
 
 	/* reboot via jumping to boot base address */
