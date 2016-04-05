@@ -697,6 +697,10 @@ static void ls1b_nand_cmdfunc(struct mtd_info *mtd, unsigned command,int column,
             case NAND_CMD_READ1:
                 complete(&info->cmd_complete);
                 break;
+            case NAND_CMD_RNDOUT:
+                 
+                info->buf_start =  column ;
+                break;
             default :
                 printk(KERN_ERR "non-supported command.\n");
                 complete(&info->cmd_complete);
