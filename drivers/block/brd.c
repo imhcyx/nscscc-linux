@@ -25,6 +25,10 @@
 #define PAGE_SECTORS_SHIFT	(PAGE_SHIFT - SECTOR_SHIFT)
 #define PAGE_SECTORS		(1 << PAGE_SECTORS_SHIFT)
 
+#ifdef  CONFIG_EMBED_RAMDISK
+extern unsigned long initrd_start;
+extern unsigned long initrd_end;
+#endif
 /*
  * Each block ramdisk device has a radix_tree brd_pages of pages that stores
  * the pages containing the block device's contents. A brd page's ->index is
@@ -58,6 +62,12 @@ static struct page *brd_lookup_page(struct brd_device *brd, sector_t sector)
 {
 	pgoff_t idx;
 	struct page *page;
+#ifdef  CONFIG_EMBED_RAMDISK
+	if(brd->brd_number == 1 && initrd_start != initrd_end)
+	{
+	return virt_to_page((sector<<9)+ initrd_start);
+	}
+#endif
 
 	/*
 	 * The page lifetime is protected by the fact that we have opened the
@@ -447,6 +457,11 @@ static struct brd_device *brd_alloc(int i)
 	disk->queue		= brd->brd_queue;
 	disk->flags |= GENHD_FL_SUPPRESS_PARTITION_INFO;
 	sprintf(disk->disk_name, "ram%d", i);
+#ifdef  CONFIG_EMBED_RAMDISK
+	if(brd->brd_number == 1 && initrd_start != initrd_end)
+	set_capacity(disk, (initrd_end - initrd_start)/512);
+	else
+#endif
 	set_capacity(disk, rd_size * 2);
 
 	return brd;

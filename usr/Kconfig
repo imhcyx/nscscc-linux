@@ -132,3 +132,18 @@ config INITRAMFS_COMPRESSION_LZMA
 	  smaller with LZMA in comparison to gzip.
 
 endchoice
+
+config EMBED_RAMDISK
+	bool "embed ramdisk"
+	default n
+        depends on BLK_DEV_INITRD
+	help
+
+config EMBED_RAMDISK_SOURCE
+	string "ramdisk file"
+	default ""
+	depends on EMBED_RAMDISK
+	help
+	  This can be a ramdiskfile.
+
+	  If you are not sure, leave it blank.

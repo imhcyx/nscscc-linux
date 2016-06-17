@@ -91,6 +91,16 @@ SECTIONS
 	}
 	_edata =  .;			/* End of data section */
 
+	. = ALIGN(PAGE_SIZE);
+	.initrd :
+	{
+	        __initrd_start = .; 
+	        *(.initrd)
+	        __initrd_end = .; 
+	        FILL (0);
+	        . = ALIGN (8192);
+	}
+
 	/* will be freed after init */
 	. = ALIGN(PAGE_SIZE);		/* Init code and data */
 	__init_begin = .;

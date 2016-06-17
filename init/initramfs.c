@@ -573,7 +573,9 @@ static int __init populate_rootfs(void)
 	if (err)
 		panic(err);	/* Failed to decompress INTERNAL initramfs */
 	if (initrd_start) {
-#ifdef CONFIG_BLK_DEV_RAM
+#ifdef CONFIG_EMBED_RAMDISK
+		printk("should use root=/dev/ram1");
+#elif defined(CONFIG_BLK_DEV_RAM)
 		int fd;
 		printk(KERN_INFO "Trying to unpack rootfs image as initramfs...\n");
 		err = unpack_to_rootfs((char *)initrd_start,

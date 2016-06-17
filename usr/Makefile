@@ -17,6 +17,11 @@ suffix_$(CONFIG_INITRAMFS_COMPRESSION_LZMA)   = .lzma
 
 # Generate builtin.o based on initramfs_data.o
 obj-$(CONFIG_BLK_DEV_INITRD) := initramfs_data$(suffix_y).o
+ifdef CONFIG_EMBED_RAMDISK
+ifneq (X$(CONFIG_EMBED_RAMDISK_SOURCE),X"")
+obj-$(CONFIG_EMBED_RAMDISK) += ramdisk_data.o
+endif
+endif
 
 # initramfs_data.o contains the compressed initramfs_data.cpio image.
 # The image is included using .incbin, a dependency which is not

@@ -182,6 +182,17 @@ static unsigned long __init init_initrd(void)
 			goto disable;
 		initrd_start = (unsigned long)(initrd_header + 2);
 		initrd_end = initrd_start + initrd_header[1];
+#elif defined(CONFIG_EMBED_RAMDISK)
+	{
+	extern char __initrd_start, __initrd_end;
+	initrd_start = (unsigned long)&__initrd_start;
+	initrd_end = (unsigned long)&__initrd_end;
+	if (initrd_start == initrd_end) {
+		initrd_start = 0;
+		initrd_end = 0;
+		goto disable;
+	}
+	}
 #else
 		goto disable;
 #endif
