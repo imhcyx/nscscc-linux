@@ -21,7 +21,7 @@
 #define NO_SPARE_ADDRL(x)   ((x) << (PAGE_SHIFT - 1))
 #define SPARE_ADDRH(x)      ((x) >> (32 - (PAGE_SHIFT )))   
 #define SPARE_ADDRL(x)      ((x) << (PAGE_SHIFT ))
-#elif CONFIG_MACH_LS1A
+#elif defined(CONFIG_MACH_LS1A) || defined(CONFIG_MACH_LS232)
 #define NO_SPARE_ADDRH(x)   (x)   
 #define NO_SPARE_ADDRL(x)   0
 #define SPARE_ADDRH(x)      (x)   
@@ -29,7 +29,9 @@
 #endif 
 #define ALIGN_DMA(x)       (((x)+ 3)/4)
 
-//#define USE_POLL
+#ifdef CONFIG_MACH_LS232
+#define USE_POLL
+#endif
 #ifdef USE_POLL
 #define complete(...)
 #define wait_for_completion_timeout(...)
@@ -63,7 +65,7 @@
 #define DMA_STEP_TIMES  0x20
 #define DMA_CMD         0x40
 
-#ifdef CONFIG_MACH_LS1A
+#if defined(CONFIG_MACH_LS1A) || defined(CONFIG_MACH_LS232)
 #define NAND_ECC_OFF	0
 #define NAND_ECC_ON	1
 #define RAM_OP_OFF	0
@@ -109,7 +111,7 @@ struct ls1a_nand_cmdset {
 	uint32_t    op_main:1;		//8
 	uint32_t    op_spare:1;		//9
 	uint32_t    done:1;		//10
-#ifdef CONFIG_MACH_LS1A
+#if defined(CONFIG_MACH_LS1A) || defined(CONFIG_MACH_LS232)
 	uint32_t    ecc_rd:1;		//11
 	uint32_t    ecc_wr:1;		//12
  	uint32_t    int_en:1;		//13
@@ -120,7 +122,7 @@ struct ls1a_nand_cmdset {
 #endif
         uint32_t    nand_rdy:4;//16-19
         uint32_t    nand_ce:4;//20-23
-#ifdef CONFIG_MACH_LS1A
+#if defined(CONFIG_MACH_LS1A) || defined(CONFIG_MACH_LS232)
 	uint32_t    ecc_dma_req:1;         //24
 	uint32_t    nul_dma_req:1;         //25
 #endif
@@ -284,8 +286,14 @@ static void ls1a_nand_ecc_hwctl(struct mtd_info *mtd, int mode)
 
 static int ls1a_nand_waitfunc(struct mtd_info *mtd, struct nand_chip *this)
 {
+     unsigned char status;
     udelay(50);
+#ifdef CONFIG_MACH_LS232
+    status = _NAND_IDH>>16;
+    return status;
+#else
     return 0;
+#endif
 }
 static void ls1a_nand_select_chip(struct mtd_info *mtd, int chip)
 {
@@ -534,6 +542,7 @@ static void nand_setup(unsigned int flags ,struct ls1a_nand_info *info)
 
     nand_base->op_num = (flags & NAND_OP_NUM)==NAND_OP_NUM ? info->nand_regs.op_num: info->nand_op_num;
     nand_base->cs_rdy_map = (flags & NAND_CS_RDY_MAP)==NAND_CS_RDY_MAP ? info->nand_regs.cs_rdy_map: info->nand_cs_rdy_map;
+    nand_base->param = ((nand_base->param) & 0xc000ffff) | (nand_base->op_num << 16);
 
     if(flags & NAND_CMD){
             nand_base->cmd = (info->nand_regs.cmd) & (~0xff);
@@ -574,7 +583,7 @@ static void ls1a_nand_cmdfunc(struct mtd_info *mtd, unsigned command,int column,
                 info->nand_regs.op_num = info->buf_count;
                /*nand cmd set */ 
                 info->nand_regs.cmd = 0; 
-#ifdef CONFIG_MACH_LS1A
+#if defined(CONFIG_MACH_LS1A) || defined(CONFIG_MACH_LS232)
 				((struct ls1a_nand_cmdset*)&(info->nand_regs.cmd))->int_en = 1;
                 ((struct ls1a_nand_cmdset*)&(info->nand_regs.cmd))->ram_op = RAM_OP_OFF;
                 ((struct ls1a_nand_cmdset*)&(info->nand_regs.cmd))->ecc_rd = NAND_ECC_OFF;
@@ -608,7 +617,7 @@ static void ls1a_nand_cmdfunc(struct mtd_info *mtd, unsigned command,int column,
                /*nand cmd set */ 
                 info->nand_regs.cmd = 0; 
                 info->dma_regs.cmd = 0;
-#ifdef CONFIG_MACH_LS1A
+#if defined(CONFIG_MACH_LS1A) || defined(CONFIG_MACH_LS232)
 				((struct ls1a_nand_cmdset*)&(info->nand_regs.cmd))->int_en = 1;
                 ((struct ls1a_nand_cmdset*)&(info->nand_regs.cmd))->ram_op = RAM_OP_OFF;
                 ((struct ls1a_nand_cmdset*)&(info->nand_regs.cmd))->ecc_rd = NAND_ECC_OFF;
@@ -657,7 +666,7 @@ static void ls1a_nand_cmdfunc(struct mtd_info *mtd, unsigned command,int column,
                 /*nand cmd set */ 
                 info->nand_regs.cmd = 0; 
                 info->dma_regs.cmd = 0;
-#ifdef CONFIG_MACH_LS1A
+#if defined(CONFIG_MACH_LS1A) || defined(CONFIG_MACH_LS232)
 				((struct ls1a_nand_cmdset*)&(info->nand_regs.cmd))->int_en = 1;
                 ((struct ls1a_nand_cmdset*)&(info->nand_regs.cmd))->ram_op = RAM_OP_OFF;
                 ((struct ls1a_nand_cmdset*)&(info->nand_regs.cmd))->ecc_rd = NAND_ECC_OFF;
@@ -680,7 +689,7 @@ static void ls1a_nand_cmdfunc(struct mtd_info *mtd, unsigned command,int column,
 //                info->state = STATE_BUSY;
                /*nand cmd set */ 
                 info->nand_regs.cmd = 0; 
-#ifdef CONFIG_MACH_LS1A
+#if defined(CONFIG_MACH_LS1A) || defined(CONFIG_MACH_LS232)
 				((struct ls1a_nand_cmdset*)&(info->nand_regs.cmd))->int_en = 0;
                 ((struct ls1a_nand_cmdset*)&(info->nand_regs.cmd))->ram_op = RAM_OP_OFF;
 #endif
@@ -710,7 +719,7 @@ static void ls1a_nand_cmdfunc(struct mtd_info *mtd, unsigned command,int column,
                 info->nand_regs.addrl =  NO_SPARE_ADDRL(page_addr) ;
                /*nand cmd set */
                 info->nand_regs.cmd = 0; 
-#ifdef CONFIG_MACH_LS1A
+#if defined(CONFIG_MACH_LS1A) || defined(CONFIG_MACH_LS232)
 				((struct ls1a_nand_cmdset*)&(info->nand_regs.cmd))->int_en = 0;
                 ((struct ls1a_nand_cmdset*)&(info->nand_regs.cmd))->ram_op = RAM_OP_OFF;
 #endif
@@ -756,7 +765,7 @@ static void ls1a_nand_cmdfunc(struct mtd_info *mtd, unsigned command,int column,
                    unsigned int id_val_l=0,id_val_h=0;
                    unsigned char *data = (unsigned char *)(info->data_buff);
 #ifdef	LS1B01
-              /     unsigned int timing = 0;
+                    unsigned int timing = 0;
                    _NAND_READ_REG(0xc,timing);
                    _NAND_SET_REG(0xc,0x30f0); 
                    _NAND_SET_REG(0x0,0x21); 
@@ -826,7 +835,7 @@ static void ls1a_nand_init_info(struct ls1a_nand_info *info)
 {
 
 
-    *((volatile unsigned int *)0xbfe78018) = 0x400;
+    *((volatile unsigned int *)0xbfe78018) = 0x08005300;
     info->timing_flag = 1;/*0:read; 1:write;*/
     info->num=0;
     info->size=0;
@@ -975,7 +984,7 @@ const char *part_probes[] = { "cmdlinepart", NULL };
 fail_free_irq:
 	free_irq(irq, info);
 fail_free_buf:
-    	dma_free_coherent(&pdev->dev, info->data_buff_size,info->data_buff, info->data_buff_phys);
+    	dma_free_coherent(&pdev->dev, info->data_buff_size,UNCAC_ADDR(info->data_buff), info->data_buff_phys);
 fail_free_io:
 	iounmap(info->mmio_base);
 fail_free_res:
