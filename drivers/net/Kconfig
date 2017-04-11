@@ -3267,4 +3267,13 @@ config VMXNET3
          To compile this driver as a module, choose M here: the
          module will be called vmxnet3.
 
+config DMFE_MAC
+	tristate "LS232 SOC MAC 10/100M Fast Ethernet Adapter support"
+	---help---
+	  This is a driver for the Fast Ethernet PCI network cards based on
+	  the ITC MAC chips. If you have one of those, say Y and
+
+	  To compile this driver as a module, choose M here: the module
+	  will be called dmfe.  This is recommended.
+
 endif # NETDEVICES
