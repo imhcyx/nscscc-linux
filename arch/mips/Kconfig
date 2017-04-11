@@ -893,6 +893,10 @@ config MACH_LS1B
 	select USB_ARCH_HAS_EHCI
 	select USB_ARCH_HAS_OHCI
 
+config MACH_LS232
+	bool
+	select USB_ARCH_HAS_EHCI
+	select USB_ARCH_HAS_OHCI
 
 #
 # Endianess selection.  Sufficiently obscure so many users don't know what to
