@@ -338,6 +338,7 @@ static void __cpuinit build_tlb_write_entry(u32 **p, struct uasm_label **l,
 		if (m4kc_tlbp_war())
 			uasm_i_nop(p);
 	case CPU_ALCHEMY:
+	case CPU_LOONGSON232:
 		tlbw(p);
 		break;
 
