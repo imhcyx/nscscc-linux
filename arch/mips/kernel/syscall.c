@@ -511,6 +511,26 @@ asmlinkage void bad_stack(void)
 	do_exit(SIGSEGV);
 }
 
+SYSCALL_DEFINE2(lcd_regwrite, const uint32_t __user *, data, size_t, count)
+{
+	int i;
+	for (i = 0; i < count; i++)
+		*((volatile uint32_t *)(0xbfd0d000)) = data[i];
+	return 0;
+}
+
+SYSCALL_DEFINE1(led_regwrite, uint32_t, data)
+{
+	*((volatile uint32_t *)(0xbfd0f000)) = data;
+	return 0;
+}
+
+SYSCALL_DEFINE1(num_regwrite, uint32_t, data)
+{
+	*((volatile uint32_t *)(0xbfd0f010)) = data;
+	return 0;
+}
+
 /*
  * Do a system call from kernel instead of calling sys_execve so we
  * end up with proper pt_regs.

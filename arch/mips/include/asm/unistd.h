@@ -355,16 +355,19 @@
 #define __NR_rt_tgsigqueueinfo		(__NR_Linux + 332)
 #define __NR_perf_event_open		(__NR_Linux + 333)
 #define __NR_accept4			(__NR_Linux + 334)
+#define __NR_lcd_regwrite       (__NR_Linux + 335)
+#define __NR_led_regwrite       (__NR_Linux + 336)
+#define __NR_num_regwrite       (__NR_Linux + 337)
 
 /*
  * Offset of the last Linux o32 flavoured syscall
  */
-#define __NR_Linux_syscalls		334
+#define __NR_Linux_syscalls		337
 
 #endif /* _MIPS_SIM == _MIPS_SIM_ABI32 */
 
 #define __NR_O32_Linux			4000
-#define __NR_O32_Linux_syscalls		334
+#define __NR_O32_Linux_syscalls		337
 
 #if _MIPS_SIM == _MIPS_SIM_ABI64
 

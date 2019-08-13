@@ -885,4 +885,9 @@ asmlinkage long sys_perf_event_open(
 asmlinkage long sys_mmap_pgoff(unsigned long addr, unsigned long len,
 			unsigned long prot, unsigned long flags,
 			unsigned long fd, unsigned long pgoff);
+
+asmlinkage long sys_lcd_regwrite(const uint32_t __user *data, size_t count);
+asmlinkage long sys_led_regwrite(uint32_t data);
+asmlinkage long sys_num_regwrite(uint32_t data);
+
 #endif
