@@ -531,7 +531,7 @@ SYSCALL_DEFINE1(num_regwrite, uint32_t, data)
 	return 0;
 }
 
-SYSCALL_DEFINE3(sys_gpio_control, uint32_t, address, uint32_t, data, int, operation)
+SYSCALL_DEFINE3(gpio_control, uint32_t, address, uint32_t, data, int, operation)
 {
 	if (operation)
 		return *((volatile uint32_t *)address);
