@@ -583,9 +583,10 @@ einval:	li	v0, -ENOSYS
 	sys	sys_rt_tgsigqueueinfo	4
 	sys	sys_perf_event_open	5
 	sys	sys_accept4		4
-	sys sys_lcd_regwrite    2
-	sys sys_led_regwrite    1
-	sys sys_num_regwrite    1
+	sys sys_lcd_regwrite	2
+	sys sys_led_regwrite	1
+	sys sys_num_regwrite	1
+	sys sys_gpio_control	3
 	.endm
 
 	/* We pre-compute the number of _instruction_ bytes needed to

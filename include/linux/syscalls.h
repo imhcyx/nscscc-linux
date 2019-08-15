@@ -889,5 +889,6 @@ asmlinkage long sys_mmap_pgoff(unsigned long addr, unsigned long len,
 asmlinkage long sys_lcd_regwrite(const uint32_t __user *data, size_t count);
 asmlinkage long sys_led_regwrite(uint32_t data);
 asmlinkage long sys_num_regwrite(uint32_t data);
+asmlinkage long sys_gpio_control(uint32_t address, uint32_t data, int operation);
 
 #endif

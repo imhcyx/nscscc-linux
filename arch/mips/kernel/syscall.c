@@ -531,6 +531,17 @@ SYSCALL_DEFINE1(num_regwrite, uint32_t, data)
 	return 0;
 }
 
+SYSCALL_DEFINE3(sys_gpio_control, uint32_t, address, uint32_t, data, int, operation)
+{
+	if (operation)
+		return *((volatile uint32_t *)address);
+	else
+	{
+		*((volatile uint32_t *)address) = data;
+		return 0;
+	}
+}
+
 /*
  * Do a system call from kernel instead of calling sys_execve so we
  * end up with proper pt_regs.

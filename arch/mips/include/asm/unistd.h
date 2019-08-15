@@ -358,16 +358,17 @@
 #define __NR_lcd_regwrite       (__NR_Linux + 335)
 #define __NR_led_regwrite       (__NR_Linux + 336)
 #define __NR_num_regwrite       (__NR_Linux + 337)
+#define __NR_gpio_control       (__NR_Linux + 338)
 
 /*
  * Offset of the last Linux o32 flavoured syscall
  */
-#define __NR_Linux_syscalls		337
+#define __NR_Linux_syscalls		338
 
 #endif /* _MIPS_SIM == _MIPS_SIM_ABI32 */
 
 #define __NR_O32_Linux			4000
-#define __NR_O32_Linux_syscalls		337
+#define __NR_O32_Linux_syscalls		338
 
 #if _MIPS_SIM == _MIPS_SIM_ABI64
 
